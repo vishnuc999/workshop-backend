@@ -21,7 +21,7 @@ export class TrainsController {
     }
 
     @Get()
-    getTrains(@Query('source') source: string, @Query('destination') destination: string, @Query('destination') date: Date) {
+    getTrains(@Query('source') source: string, @Query('destination') destination: string, @Query('date') date: Date) {
         return this.trainsService.getTrains(source, destination, date);
     }
 }
