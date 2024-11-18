@@ -1,63 +1,55 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { QueryTypes } from 'sequelize';
 import { Sequelize } from 'sequelize-typescript';
-import { AddTrainDto, UpdateTrainDto } from 'src/dto/train.dto';
+import { AddTrainDto } from 'src/dto/train.dto';
+import { Train } from 'src/entity/train.entity';
 
 @Injectable()
 export class TrainsService {
   constructor(
     @Inject('SEQUELIZE') private sequelize: Sequelize,
+    @Inject('TRAINS_REPOSITORY') private _trainsRepository: typeof Train,
   ) {}
 
-  addTrain(request: AddTrainDto) {
-    return {
-      "trainId": 6,
-      "message": "Train added successfully"
-    };
+  async addTrain(request: AddTrainDto) {
+    const createdTrain: Train = await this._trainsRepository.create({
+      name: request.name,
+      source: request.source,
+      destination: request.destination,
+      endTime: request.endTime,
+      startTime: request.startTime,
+      totalSeats: request.totalSeats,
+      price: request.price,
+    });
+    return createdTrain.trainId;
   }
 
-  updateTrain(request: UpdateTrainDto, trainId: number) {
-    return {
-      "trainId": 6,
-      "message": "Train updated successfully"
-    };
-  }
-  deleteTrain(trainId: number) {
-    return {
-      "trainId": 6,
-      "message": "Train deleted successfully"
-    };
-  }
-
-
-  async getTrains(source: string, destination: string, date: Date){
-    console.log(source, destination, date);
-    
+  async getTrains(source: string, destination: string, date: Date){    
     let query = `
             SELECT 
-                t.TrainId,
-                t.Name,
-                t.Source,
-                t.Destination,
-                t.DepartureTime,
-                t.ArrivalTime,
-                t.TotalSeats,
-                t.TotalSeats -  COALESCE(SUM(b.SeatCount), 0) AS AvailableSeats
+                t.trainId,
+                t.name,
+                t.source,
+                t.destination,
+                t.startTime,
+                t.endTime,
+                t.totalSeats,
+                t.totalSeats -  COALESCE(SUM(b.SeatCount), 0) AS availableSeats
             FROM 
                 Trains t
             LEFT JOIN 
-                Bookings b ON t.TrainId = b.TrainId
+                Bookings b ON t.trainId = b.trainId
             WHERE 
-                t.IsActive = 1 AND t.IsDeleted = 0 
-                AND Date(DepartureTime) = :departureTime
+                t.isActive = 1 AND t.isDeleted = 0 
+                AND Date(endTime) = :endTime
                 AND destination = :destination
                 AND source = :source
-            GROUP BY t.TrainId
+            GROUP BY t.trainId
         `;
 
     return await this.sequelize.query(query, {
       type: QueryTypes.SELECT,
-      replacements: { source, destination, departureTime: date },
+      replacements: { source, destination, endTime: date },
     });
   }
 }

@@ -15,11 +15,11 @@ export class AddTrainDto {
 
     @IsDateString()
     @IsNotEmpty()
-    departureTime: Date;
+    startTime: Date;
 
     @IsDateString()
     @IsNotEmpty()
-    arrivalTime: Date;
+    endTime: Date;
 
     @IsNumber()
     @IsNotEmpty()

@@ -1,4 +1,5 @@
 import { Sequelize } from 'sequelize-typescript';
+import { Train } from 'src/entity/train.entity';
 
 // This provider sets up a connection to the database using Sequelize (ORM)
 export const databaseProvider = {
@@ -14,6 +15,13 @@ export const databaseProvider = {
       define: { timestamps: false }, // Disable automatic timestamps like createdAt and updatedAt
     });
 
+    sequelize.addModels([Train]);
+
     return sequelize;
   },
 };
+
+export const TrainsProvider = {
+  provide: 'TRAINS_REPOSITORY',
+  useValue: Train
+}
