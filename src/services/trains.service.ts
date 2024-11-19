@@ -24,7 +24,7 @@ export class TrainsService {
     return createdTrain.trainId;
   }
 
-  async getTrains(source: string, destination: string, date: Date){    
+   async getTrains(){    
     let query = `
             SELECT 
                 t.trainId,
@@ -41,15 +41,12 @@ export class TrainsService {
                 Bookings b ON t.trainId = b.trainId
             WHERE 
                 t.isActive = 1 AND t.isDeleted = 0 
-                AND Date(endTime) = :endTime
-                AND destination = :destination
-                AND source = :source
             GROUP BY t.trainId
         `;
 
-    return await this.sequelize.query(query, {
-      type: QueryTypes.SELECT,
-      replacements: { source, destination, endTime: date },
+    const data = await this.sequelize.query(query, {
+      type: QueryTypes.SELECT
     });
+    return data;
   }
 }
